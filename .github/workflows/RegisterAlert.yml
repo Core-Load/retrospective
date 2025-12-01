@@ -1,0 +1,19 @@
+name: Register Alert
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  register-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Update Issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const update = require('./scripts/issue-update.js')
+            update({ github, context })

@@ -1,0 +1,39 @@
+name: Merge Issue For Daily
+
+on:
+  workflow_dispatch:
+    inputs:
+      date-mode:
+        description: 'Date selection mode'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - manual
+      start-date:
+        description: 'Start date (YYYY-MM-DD) - Only used in manual mode'
+        required: false
+      end-date:
+        description: 'End date (YYYY-MM-DD) - Only used in manual mode'
+        required: false
+
+jobs:
+  merge-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Merge Issue
+        uses: actions/github-script@v6
+        env:
+          DATE_MODE: ${{ github.event.inputs.date-mode }}
+          START_DATE: ${{ github.event.inputs.start-date }}
+          END_DATE: ${{ github.event.inputs.end-date }}
+        with:
+          script: |
+            const update = require('./scripts/issue-merge-for-daily.js')
+            update({ github, context })
