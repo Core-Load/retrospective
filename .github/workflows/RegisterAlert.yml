@@ -8,7 +8,7 @@ on:
 jobs:
   register-alert:
     runs-on: ubuntu-latest
-    permissions:
+    # permissions:
       # issues: write
       # contents: read
     steps:
