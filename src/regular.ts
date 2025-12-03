@@ -4,7 +4,7 @@ import broadcast from '~/modules/broadcast'
 
 export default async function main() {
     const issueCreateURL = [
-        `https://github.com/pushnet/retrospective/issues/new`,
+        `https://github.com/Core-Load/retrospective/issues/new`,
         [
             `title=${`${dayjs().format('YYYY-MM-DD')} XXX 회고`}`,
             `labels=회고`,
