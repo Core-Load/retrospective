@@ -8,9 +8,6 @@ on:
 jobs:
   register-alert:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      contents: read
     steps:
       - uses: actions/checkout@v3
 
