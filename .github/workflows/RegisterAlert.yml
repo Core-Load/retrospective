@@ -14,7 +14,6 @@ jobs:
       - name: Update Issue
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.ISSUE_TOKEN }}
           script: |
             const update = require('./scripts/issue-update.js')
             update({ github, context })
