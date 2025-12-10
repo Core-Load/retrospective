@@ -57,17 +57,21 @@ module.exports = async ({ github, context }) => {
 
         const sections = body.split('##')
             .map(section => section.split('\n').map((item, idx) => idx === 0 ? item.trim() : item))
-            .filter(section => section.join('') !== '')
+            .filter(section => section.join('').trim() !== '')
 
         for (const [sectionTitle, ...sectionContent] of sections) {
             if (!sectionMap[sectionTitle]) {
                 sectionMap[sectionTitle] = []
             }
 
+            // "-" 단독 제거 (내용 없는 bullet 제거)
+            const bullets = sectionContent.map(i => i.trim()).filter(i => i.startsWith('-')).filter(i => i.length > 1)
+            if (bullets.length === 0) continue
+
             sectionMap[sectionTitle].push(
-                ...sectionContent
-                    .filter(i => i.trim()[0] === '-')
-                    .map(i => i.replace('-', `- \`${month}월 ${week}주차\``))
+                ...bullets.map(i =>
+                    i.replace(/^-\s*/, `- \`${month}월 ${week}주차\` `)
+                )
             )
         }
 
