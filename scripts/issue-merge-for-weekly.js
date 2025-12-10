@@ -3,6 +3,23 @@ const members = require('../members.json')
 const START_DATE = process.env.START_DATE
 const END_DATE = process.env.END_DATE
 
+// body 안에서 "## 섹션 제목" 단위로 섹션을 추출하는 함수
+function extractSections(body) {
+    const regex = /##\s*(.*?)\s*\n+([\s\S]*?)(?=##\s*|$)/g
+    const result = []
+    let match
+    while ((match = regex.exec(body)) !== null) {
+        const title = match[1].trim()
+        const contentBlock = match[2]
+        const contentLines = contentBlock
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+        result.push([title, ...contentLines])
+    }
+    return result
+}
+
 const createContent = (map) => `
 ## 내면
 
@@ -55,24 +72,23 @@ module.exports = async ({ github, context }) => {
         const month = new Date(startDate).getMonth() + 1
         const week = Math.ceil((new Date(startDate)).getDate() / 7)
 
-        const sections = body.split('##')
-            .map(section => section.split('\n').map((item, idx) => idx === 0 ? item.trim() : item))
-            .filter(section => section.join('').trim() !== '')
+        const sections = extractSections(body)
 
         for (const [sectionTitle, ...sectionContent] of sections) {
             if (!sectionMap[sectionTitle]) {
                 sectionMap[sectionTitle] = []
             }
 
-            // "-" 단독 제거 (내용 없는 bullet 제거)
-            const bullets = sectionContent.map(i => i.trim()).filter(i => i.startsWith('-')).filter(i => i.length > 1)
-            if (bullets.length === 0) continue
+            const bullets = sectionContent
+                .filter(i => i.trim().startsWith('-'))
+                .filter(i => i.trim().length > 2)
 
-            sectionMap[sectionTitle].push(
-                ...bullets.map(i =>
-                    i.replace(/^-\s*/, `- \`${month}월 ${week}주차\` `)
-                )
-            )
+            if (bullets.length === 0)
+                continue
+
+            const normalized = bullets.map(i => i.replace(/^-\s*/, `- \`${month}월 ${week}주차\` `))
+
+            sectionMap[sectionTitle].push(...normalized)
         }
 
         await github.rest.issues.update({
